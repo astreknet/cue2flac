@@ -1,0 +1,26 @@
+#!/bin/sh -
+# dealing with flac and cue
+# sliting a single flac file and adding the tags from the cue file
+# dependencies: shntool cuetools
+# make sure you have the dependencies and backup first!
+
+PATH=/bin:/sbin:/usr/sbin:/usr/bin:/usr/local/bin/
+p=`pwd`"/"$1
+
+if [ `ls /usr/local/bin/ | egrep shnsplit\|cuetag | wc -l` == 2 ];
+then
+    cd "$p"
+    mv *flac cue2flac_delete.flac
+    shnsplit -f *cue -t %n.%t -o flac  cue2flac_delete.flac
+    rm cue2flac_delete.flac
+    
+    for i in `ls  | awk '{ print $1 }'`
+    do
+        mv "$i"* `ls  | grep "$i" | sed 's/ /_/g' `
+    done
+    cuetag.sh *cue *flac
+    rm *cue *accurip *log
+else
+    echo "it didn't work! :-("
+    echo "do you have shntool and cuetools installed?"
+fi
